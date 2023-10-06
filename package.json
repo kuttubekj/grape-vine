@@ -1,0 +1,16 @@
+{
+  "name": "vouch-tech",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": {
+    "packages": [
+      "packages/contracts",
+      "packages/frontend"
+    ]
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "yarn workspace @vouch-tech/frontend dev"
+  },
+  "license": "ISC"
+}
