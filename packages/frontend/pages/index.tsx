@@ -38,11 +38,12 @@ export default function Home() {
   const [selectedChat, setSelectedChat] = useState('');
   const [activeTab, setActiveTab] = useState('chats'); // 'chats' or 'requests'
   const [isTokenModalOpen, setTokenModalOpen] = useState(false);
-  const [isModalVisible, setModalVisible] = useState(true);
+  const [isModalVisible, setModalVisible] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [messagesLoading, setMessagesLoading] = useState(false);
   const [chatFetching, setChatFetching] = useState(false);
   const [transactionLoading, setTransactionLoading] = useState(false);
+  const [transactionDetails, setTransactionDetails] = useState<Message>();
 
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
   const { address } = useAccount();
@@ -81,9 +82,9 @@ export default function Home() {
     setTokenModalOpen(true);
   };
 
-  const onTransactionModal = () => {
+  const openTransactionModal = (message: Message) => {
     setModalVisible(true);
-    // setTransactionDetails()
+    setTransactionDetails(message)
   };
 
   const closeTokenModal = () => {
@@ -296,6 +297,7 @@ export default function Home() {
                     <TransactionModal
                       isOpen={isModalVisible}
                       onClose={closeTransactionModal}
+                      message={transactionDetails}
                       onConfirm={() => { }}
                     />
                   <div className="overflow-y-auto p-5 flex-grow">
@@ -305,7 +307,7 @@ export default function Home() {
                           {message.transaction?.type === `REQUEST` ? (
                             <div className="chat-bubble bg-base-200 text-white p-3 rounded-lg shadow-md">
                               💰 Requested <span className="font-bold">{message.transaction.amount} {message.transaction.token}</span>
-                              <button onClick={onTransactionModal}
+                              <button onClick={() => {openTransactionModal(message)}}
                                 className="ml-2 bg-base-500 text-white px-2 py-1 rounded shadow hover:bg-green-600 transition-all">
                                 <FiPlay className="text-primary h-6 w-6" />
                               </button>
@@ -435,25 +437,22 @@ export default function Home() {
 }
 
 function TransactionModal(
-  { isOpen, onClose, onConfirm }:
-    { isOpen: boolean, onClose: () => void, onConfirm: () => void }
+  { message, isOpen, onClose, onConfirm }:
+    { message: Message, isOpen: boolean, onClose: () => void, onConfirm: () => void }
 ) {
-  const [token, setToken] = useState('ETH');
-  const [amount, setAmount] = useState('');
-  const [recipient, setRecipient] = useState('0x3f1a...af321'); // Assuming you want to specify the recipient address
 
   return (
     <div className={`fixed z-50 top-0 left-0 w-full h-full ${isOpen ? 'block' : 'hidden'}`} style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
       <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 p-5 bg-black rounded-lg">
         <p className="text-white mb-4">You are about to send:</p>
         <div className="mb-4">
-          <strong className="text-white">Amount:</strong> 20
+          <strong className="text-white">Amount:</strong> {message?.transaction?.amount}
         </div>
         <div className="mb-4">
-          <strong className="text-white">Token:</strong> DAI
+          <strong className="text-white">Token:</strong> {message?.transaction?.token}
         </div>
         <div className="mb-4">
-          <strong className="text-white">To Address:</strong> {recipient}
+          <strong className="text-white">To Address:</strong> {beautifyAddress(message?.to)}
         </div>
         <button className="btn btn-primary w-full mb-2" onClick={() => onConfirm()}>Send</button>
 
