@@ -23,7 +23,7 @@ import { publicProvider } from 'wagmi/providers/public';
 import { ReactNode } from 'react';
 
 import { WALLET_CONNECT_PROJECT_ID } from '@/utils/config';
-import { goerli } from "wagmi/chains"
+import { goerli, mainnet } from "wagmi/chains"
 
 interface Props {
 	children: ReactNode;
@@ -32,7 +32,7 @@ interface Props {
 const projectId = WALLET_CONNECT_PROJECT_ID;
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
-	[goerli],
+	[mainnet],
 	[publicProvider()]
 );
 

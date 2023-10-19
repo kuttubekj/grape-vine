@@ -20,6 +20,7 @@
     "next": "13.5.4",
     "next-transpile-modules": "^10.0.1",
     "react": "^18",
+    "react-blockies": "^1.4.1",
     "react-dom": "^18",
     "react-icons": "^4.11.0",
     "styled-components": "^6.0.8",
@@ -29,6 +30,7 @@
   "devDependencies": {
     "@types/node": "^20",
     "@types/react": "^18",
+    "@types/react-blockies": "^1",
     "@types/react-dom": "^18",
     "autoprefixer": "^10",
     "eslint": "^8",

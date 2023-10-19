@@ -30,13 +30,13 @@ export const Requests: FC<RequestsProps> = ({ requests, user, fetchChats, fetchR
     }
   
     return (
-      <div className={`flex flex-col w-full md:w-2/5 border-r-2 overflow-y-auto ${selectedChat && 'hidden md:flex'}`}>
+      <div className={`flex flex-col w-full border-r-2 overflow-y-auto ${selectedChat && 'hidden md:flex'}`}>
         <div className="border-b-2 py-4 px-2">
           <span>Requests</span>
         </div>
         <div className={`flex flex-col w-full  border-r-2 overflow-y-auto ${selectedChat && 'hidden md:block'}`}>
           {requests?.map((request, idx) => (
-            <RequestItem request={request} selectedChat={selectedChat} setSelectedChat={setSelectedChat} acceptRequest={acceptRequest} rejectRequest={rejectRequest} />
+            <RequestItem key={idx} request={request} selectedChat={selectedChat} setSelectedChat={setSelectedChat} acceptRequest={acceptRequest} rejectRequest={rejectRequest} />
           ))}
         </div>
       </div>

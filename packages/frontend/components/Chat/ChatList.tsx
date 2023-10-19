@@ -4,6 +4,7 @@ import { Chats } from "./Chats";
 import { Requests } from "./Requests";
 
 type ChatListProps = {
+    chatFetching: boolean;
     chats: IFeeds[];
     requests: IFeeds[];
     user: PushAPI | undefined;
@@ -16,7 +17,7 @@ type ChatListProps = {
 };
 
 export const ChatList: FC<ChatListProps> = ({
-    activeTab, setActiveTab, selectedChat, setSelectedChat, chats, requests, user, fetchChats, fetchRequests
+    chatFetching, activeTab, setActiveTab, selectedChat, setSelectedChat, chats, requests, user, fetchChats, fetchRequests
 }) => (
     <div className={`flex flex-col w-full md:w-2/5 border-r-2 overflow-y-auto ${selectedChat && 'hidden md:flex'}`}>
         <div className="flex justify-center space-x-4 py-4 border-b-2 tabs tabs-boxed">
@@ -36,7 +37,7 @@ export const ChatList: FC<ChatListProps> = ({
         </div>
         {
             activeTab === 'chats'
-                ? <Chats chats={chats} selectedChat={selectedChat} setSelectedChat={setSelectedChat} />
+                ? <Chats loading={chatFetching} chats={chats} selectedChat={selectedChat} setSelectedChat={setSelectedChat} />
                 : <Requests
                     requests={requests}
                     selectedChat={selectedChat}
