@@ -32,7 +32,7 @@ interface Props {
 const projectId = WALLET_CONNECT_PROJECT_ID;
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
-	[mainnet],
+	[goerli, mainnet],
 	[publicProvider()]
 );
 
