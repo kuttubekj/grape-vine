@@ -10,7 +10,8 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "yarn workspace @vouch-tech/frontend dev"
+    "start": "yarn workspace @vouch-tech/frontend dev",
+    "deploy": "yarn workspace @vouch-tech/contracts deploy"
   },
   "packageManager": "yarn@3.2.3",
   "license": "ISC",
