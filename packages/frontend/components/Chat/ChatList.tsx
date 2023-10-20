@@ -14,10 +14,21 @@ type ChatListProps = {
     setSelectedChat: (address: string) => void;
     fetchChats: () => void;
     fetchRequests: () => void;
+    setCurrentChat: (chat: IFeeds) => void;
 };
 
 export const ChatList: FC<ChatListProps> = ({
-    chatFetching, activeTab, setActiveTab, selectedChat, setSelectedChat, chats, requests, user, fetchChats, fetchRequests
+    chatFetching,
+    activeTab,
+    setActiveTab,
+    selectedChat,
+    setSelectedChat,
+    chats,
+    requests,
+    user,
+    fetchChats,
+    fetchRequests,
+    setCurrentChat
 }) => (
     <div className={`flex flex-col w-full md:w-2/5 border-r-2 overflow-y-auto ${selectedChat && 'hidden md:flex'}`}>
         <div className="flex justify-center space-x-4 py-4 border-b-2 tabs tabs-boxed">
@@ -37,7 +48,13 @@ export const ChatList: FC<ChatListProps> = ({
         </div>
         {
             activeTab === 'chats'
-                ? <Chats loading={chatFetching} chats={chats} selectedChat={selectedChat} setSelectedChat={setSelectedChat} />
+                ? <Chats 
+                    loading={chatFetching}
+                    chats={chats}
+                    selectedChat={selectedChat}
+                    setSelectedChat={setSelectedChat}
+                    setCurrentChat={setCurrentChat}
+                />
                 : <Requests
                     requests={requests}
                     selectedChat={selectedChat}

@@ -10,13 +10,20 @@ import { useAccount } from "wagmi";
 import Blockies from 'react-blockies';
 import { LoadingComponent } from "@/components/LoadingComponent";
 import { MessageType } from "@pushprotocol/restapi/src/lib/constants";
+import { usePayDirect, usePayInvoice, usePaymentRequest } from "@/hooks/usePayment";
+import { TransactionModal } from "@/components/Modals/TransactionModal";
+import { TokenModal } from "@/components/Modals/TokenModal";
+import { parseUnits } from "ethers/lib/utils";
+import { MessageItem } from "@/components/Chat/MessageItem";
 
-enum TransactionType {
+export enum TransactionType {
   SEND = 'SEND',
-  REQUEST = 'REQUEST'
+  REQUEST = 'REQUEST',
+  DIRECT_SEND = 'DIRECT_SEND',
 }
 
-type Message = {
+export type Message = {
+  cid: string;
   from: string;
   to: string;
   content: string;
@@ -44,11 +51,17 @@ export default function Home() {
   const [chatFetching, setChatFetching] = useState(false);
   const [transactionLoading, setTransactionLoading] = useState(false);
   const [transactionDetails, setTransactionDetails] = useState<Message>();
+  const [currentChat, setCurrentChat] = useState<IFeeds>();
+  const [invoiceId, setInvoiceID] = useState<string>();
+  const [amount, setAmount] = useState<string>();
 
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
   const { address } = useAccount();
   const { signer } = useEthersSigner({ address });
   const { user, userInitialized } = usePushAPI(signer);
+  const { writeAsync: makePaymentRequest } = usePaymentRequest()
+  const { writeAsync: payInvoice } = usePayInvoice()
+  const { writeAsync: payDirect } = usePayDirect()
 
   const fetchChats = async () => {
     setChatFetching(true)
@@ -82,7 +95,9 @@ export default function Home() {
     setTokenModalOpen(true);
   };
 
-  const openTransactionModal = (message: Message) => {
+  const openTransactionModal = (message: Message, invoiceId: string, amount: string | undefined) => {
+    setInvoiceID(invoiceId)
+    setAmount(amount)
     setModalVisible(true);
     setTransactionDetails(message)
   };
@@ -95,78 +110,90 @@ export default function Home() {
     setModalVisible(false);
   };
 
-  const sendMessage = async (chatId: string, message: any) => {
-    if (!user || !chatId) return;
-  
+  const sendMessage = async (to: string, message: any) => {
+    if (!user || !to) return;
+
     console.log('Sending message:', message);
-    const sentMessage = await user.chat.send(chatId, { type: message.type, content: message.content });
+    const sentMessage = await user.chat.send(to, { type: message.type, content: message.content });
     console.log('sentMessage:', sentMessage);
-  
+
     if (!sentMessage) return;
-  
+
     const newMessage = {
+      cid: sentMessage.cid,
       from: address || '',
-      to: chatId,
+      to: to,
       type: message.type,
       content: message.content,
       timestamp: (sentMessage.timestamp || 0) / 1000,
       transaction: message.transaction
     };
-    
+
     setMessages(prev => [...prev, newMessage]);
+
+    return newMessage;
   };
-  
+
   const handleSend = async (event: any) => {
     event.preventDefault();
-  
+
     const trimmedInput = input.trim();
     if (!trimmedInput || isSending) return;
-  
+
     setIsSending(true);
-  
+
     const message = {
       type: MessageType.TEXT,
       content: trimmedInput
     };
-  
+
     await sendMessage(selectedChat, message);
-  
+
     setInput('');
     setIsSending(false);
   };
-  
+
   const handleTransaction = async (token: string, amount: string, type: TransactionType) => {
     if (!selectedChat || isSending) return;
-  
+
     setIsSending(true);
     setTransactionLoading(true);
-  
+
     const transactionData = {
       type: type,
       token,
       amount
     };
-  
+
     const message = {
       type: MessageType.TEXT,
       content: JSON.stringify(transactionData),
-        // info: {
-        //   affected: [],
-        //   arbitrary: {
-        //     type: type,
-        //     token,
-        //     amount
-        //   }
-        // }
+      // info: {
+      //   affected: [],
+      //   arbitrary: {
+      //     type: type,
+      //     token,
+      //     amount
+      //   }
+      // }
       transaction: transactionData
     };
-  
-    await sendMessage(selectedChat, message);
-  
+
+    const newMessage = await sendMessage(selectedChat, message);
+
+    if (type === TransactionType.REQUEST) {
+      const tx = await makePaymentRequest({ args: [parseUnits(amount, 18), currentChat?.chatId, newMessage?.cid] })
+    } else if (type === TransactionType.DIRECT_SEND) {
+      const tx = await payDirect({ args: [currentChat?.did?.substring(7), currentChat?.chatId, newMessage?.cid], value: parseUnits(amount, 18) })
+    }
     setIsSending(false);
     setTransactionLoading(false);
   };
 
+  const handlePayInvoice = async () => {
+    const tx = await payInvoice(
+      { args: [invoiceId], value: BigInt(parseUnits(amount, 18) || 0) })
+  }
 
   const fetchChatHistory = async (targetAddress: string) => {
     setMessagesLoading(true)
@@ -174,10 +201,17 @@ export default function Home() {
       const chatHistory = await user.chat.history(targetAddress);
       console.log('chatHistory:', chatHistory)
       const msgs = chatHistory?.reverse().map((msg: any) => {
-        if(isJson(msg.messageContent)) {
+        console.log('msg:', msg)
+        if (isJson(msg.messageContent)) {
           const messageObj = JSON.parse(msg.messageContent)
-          if (messageObj.type && messageObj.token && messageObj.amount) {
+          if (
+            (messageObj.type == TransactionType.DIRECT_SEND ||
+              messageObj.type == TransactionType.REQUEST) &&
+            messageObj.token &&
+            messageObj.amount
+          ) {
             return {
+              cid: msg.cid,
               from: msg.fromDID.substring(7),
               to: msg.toDID.substring(7),
               content: messageObj.content,
@@ -192,6 +226,7 @@ export default function Home() {
           }
         }
         return {
+          cid: msg.cid,
           from: msg.fromDID.substring(7),
           to: msg.toDID.substring(7),
           content: msg.messageContent,
@@ -275,7 +310,7 @@ export default function Home() {
           setSelectedChat={setSelectedChat}
           activeTab={activeTab}
           setActiveTab={setActiveTab}
-
+          setCurrentChat={setCurrentChat}
         />
         {/* <!-- end chat list -->
              <!-- message --> */}
@@ -294,46 +329,22 @@ export default function Home() {
             <>
               {activeTab === 'chats' ? (
                 <div className="flex flex-col h-full overflow-hidden">
-                    <TransactionModal
-                      isOpen={isModalVisible}
-                      onClose={closeTransactionModal}
-                      message={transactionDetails}
-                      onConfirm={() => { }}
-                    />
+                  <TransactionModal
+                    isOpen={isModalVisible}
+                    onClose={closeTransactionModal}
+                    message={transactionDetails}
+                    onConfirm={handlePayInvoice}
+                  />
                   <div className="overflow-y-auto p-5 flex-grow">
                     {
                       messages.map((message, idx) => (
-                        <div key={idx} className={`chat ${message.from === address ? 'chat-end' : 'chat-start'}`}>
-                          {message.transaction?.type === `REQUEST` ? (
-                            <div className="chat-bubble bg-base-200 text-white p-3 rounded-lg shadow-md">
-                              💰 Requested <span className="font-bold">{message.transaction.amount} {message.transaction.token}</span>
-                              <button onClick={() => {openTransactionModal(message)}}
-                                className="ml-2 bg-base-500 text-white px-2 py-1 rounded shadow hover:bg-green-600 transition-all">
-                                <FiPlay className="text-primary h-6 w-6" />
-                              </button>
-                            </div>
-                          ) : (
-                            <div className="chat-bubble">{message.content}</div>
-                          )}
-
-                        {/* 
-                          <div className="chat-image avatar">
-                            <div className="w-10 rounded-full">
-                          <img
-                            src={me}
-                            alt="User Avatar"
-                          />
-                        </div>
-                          </div>
-                          {/* {message.from !== signer?._address && (
-                        <div className="chat-header text-white">
-                          {beautifyAddress(message.from)}
-                        </div>
-                      )} */}
-                          <div className="chat-footer opacity-50 text-white">
-                            <time className="text-xs opacity-50">{moment.unix(message.timestamp).fromNow()}</time>
-                          </div>
-                        </div>
+                        <MessageItem
+                          key={idx}
+                          chatId={currentChat?.chatId}
+                          message={message}
+                          address={address}
+                          openTransactionModal={openTransactionModal}
+                        />
                       ))
                     }
                     < div ref={endOfMessagesRef} />
@@ -431,99 +442,6 @@ export default function Home() {
             </>
           )}
         </div>
-      </div>
-    </div>
-  );
-}
-
-function TransactionModal(
-  { message, isOpen, onClose, onConfirm }:
-    { message: Message, isOpen: boolean, onClose: () => void, onConfirm: () => void }
-) {
-
-  return (
-    <div className={`fixed z-50 top-0 left-0 w-full h-full ${isOpen ? 'block' : 'hidden'}`} style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
-      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 p-5 bg-black rounded-lg">
-        <p className="text-white mb-4">You are about to send:</p>
-        <div className="mb-4">
-          <strong className="text-white">Amount:</strong> {message?.transaction?.amount}
-        </div>
-        <div className="mb-4">
-          <strong className="text-white">Token:</strong> {message?.transaction?.token}
-        </div>
-        <div className="mb-4">
-          <strong className="text-white">To Address:</strong> {beautifyAddress(message?.to)}
-        </div>
-        <button className="btn btn-primary w-full mb-2" onClick={() => onConfirm()}>Send</button>
-
-        <button className="btn mt-2 w-full" onClick={onClose}>Cancel</button>
-      </div>
-    </div>
-  );
-}
-
-function TokenModal(
-  { isOpen, onClose, onConfirmSent, loading }:
-    { isOpen: boolean, loading: boolean, onClose: () => void, onConfirmSent: (token: string, amount: string, type: TransactionType) => void }
-) {
-  const [chosenToken, setChosenToken] = useState('ETH');
-  const [tokenAmount, setTokenAmount] = useState('');
-  const [activeTab, setActiveTab] = useState('send');
-
-  return (
-    <div className={`fixed z-50 top-0 left-0 w-full h-full ${isOpen ? 'block' : 'hidden'}`} style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
-      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 p-5 bg-black rounded-lg">
-            <div className="flex justify-center mb-4">
-              <button className={`mx-2 ${activeTab === 'send' ? 'underline' : ''}`} onClick={() => setActiveTab('send')}>Send</button>
-              <button className={`mx-2 ${activeTab === 'request' ? 'underline' : ''}`} onClick={() => setActiveTab('request')}>Request</button>
-            </div>
-        <select
-          onChange={(e) => setChosenToken(e.target.value)}
-          className="input w-full mb-4"
-        >
-          <option value="ETH">ETH</option>
-          <option value="DAI">DAI</option>
-          <option value="USDT">USDT</option>
-        </select>
-
-        <input
-          value={tokenAmount}
-          onChange={(e) => setTokenAmount(e.target.value)}
-          type="number"
-          placeholder="Amount"
-          className="input w-full mb-4"
-        />
-
-        {activeTab === 'send' && (
-          <button 
-            className="btn btn-primary w-full"
-            disabled={loading}
-            onClick={() => onConfirmSent(chosenToken, tokenAmount, TransactionType.SEND)}
-          >
-            Send
-          </button>
-        )}
-
-        {activeTab === 'request' && (
-          <button
-            className="btn btn-primary w-full"
-            disabled={loading}
-            onClick={() => onConfirmSent(chosenToken, tokenAmount, TransactionType.REQUEST)}
-          >
-            Request
-            {loading &&
-              <span className="loading loading-dots loading-sm"></span>
-            }
-          </button>
-        )}
-
-        <button
-          className="btn mt-2 w-full"
-          disabled={loading}
-          onClick={onClose}
-        >
-          Cancel
-        </button>
       </div>
     </div>
   );

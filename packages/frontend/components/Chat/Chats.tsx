@@ -10,9 +10,10 @@ type ChatsProps = {
     chats: IFeeds[];
     selectedChat: string;
     setSelectedChat: (address: string) => void;
+    setCurrentChat: (chat: IFeeds) => void;
 };
 
-export const Chats: FC<ChatsProps> = ({ chats, selectedChat, setSelectedChat, loading }) => {
+export const Chats: FC<ChatsProps> = ({ chats, selectedChat, setSelectedChat, loading, setCurrentChat }) => {
     const [searchAddress, setSearchAddress] = useState('');
 
     const handleSearch = async (term: string) => {
@@ -91,6 +92,7 @@ export const Chats: FC<ChatsProps> = ({ chats, selectedChat, setSelectedChat, lo
                                         chat={chat}
                                         selectedChat={selectedChat}
                                         setSelectedChat={setSelectedChat}
+                                        setCurrentChat={setCurrentChat}
                                         key={chat.chatId}
                                     />
                                 ))}
