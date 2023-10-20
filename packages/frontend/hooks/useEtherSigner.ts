@@ -8,7 +8,6 @@ export const useEthersSigner = ({ address, chainId }: { address: `0x${string}` |
     const { data: walletClient } = useWalletClient({ chainId })
 
     useEffect(() => {
-        console.log('walletClient:', walletClient)
         if (walletClient) {
             setSigner(walletClientToSigner(walletClient))
         }

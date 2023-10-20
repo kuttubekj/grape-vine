@@ -16,10 +16,7 @@ export const ChatItem = (
     let isPayment = false
     
     if (isJson(chat.msg.messageContent)) {
-        console.log('isJson(chat.msg.messageContent):', isJson(chat.msg.messageContent))
         const message = JSON.parse(chat.msg.messageContent)
-        console.log('message:', message)
-        console.log('message?.type === `REQUEST`:', message?.type === TransactionType.REQUEST)
         isRequest = message?.type === TransactionType.REQUEST
         isPayment = message?.type === TransactionType.DIRECT_SEND
     }
