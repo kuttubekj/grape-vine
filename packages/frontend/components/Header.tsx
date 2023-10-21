@@ -30,11 +30,16 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 export const Header = () => {
   return (
     // <div className="sticky lg:static top-0 navbar bg-base-100 min-h-0 flex-shrink-0 justify-between z-20 shadow-md shadow-secondary px-0 sm:px-2 border-b font-header">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Friend Tech
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
+      <div className="z-10 max-w-5xl font-mono text-sm grid grid-cols-2 gap-4 ">
+       <div className="col-span-1">
+       
+        <div className="flex items-center pt-2"> 
+        <Image className="w-6 h-6 mr-4 " src="/grape.svg" width="40" height="40" alt="GrapeVine Logo" />
+        GrapeVine
+        </div>
+      
+      </div>
+      <div className="col-span-1 from-white via-white dark:from-black dark:via-black  ">
           <ConnectButton
             accountStatus={{
               largeScreen: "full",
@@ -43,8 +48,6 @@ export const Header = () => {
             showBalance={false}
           />
         </div>
-      {/* </div> */}
-
     </div>
   );
 };

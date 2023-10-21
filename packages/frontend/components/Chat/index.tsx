@@ -343,7 +343,7 @@ export default function Chat() {
 
   return (
     <div className="container mx-auto shadow-lg rounded-lg md:flex md:flex-col">
-      <div className="px-5 py-5 flex justify-between items-center bg-primary border-b-2">
+      <div className="px-5 py-5 flex justify-between items-center bg-primary border-b-2 rounded-t-2xl">
         <div
           className="h-12 w-12 p-2"
         >
@@ -374,7 +374,7 @@ export default function Chat() {
         />
         {/* <!-- end chat list -->
              <!-- message --> */}
-        <div className={`w-full md:w-3/5 px-5 flex flex-col max-h-132 ${!selectedChat && 'hidden md:block'}`}        >
+        <div className={`w-full md:w-3/5 px-5 flex flex-col max-h-152 ${!selectedChat && 'hidden md:block'}`}        >
 
           {messagesLoading ? (
             <div style={{

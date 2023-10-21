@@ -15,10 +15,10 @@ function Layout({ children }: PropsWithChildren) {
           fill
         /> */}
             {/* </figure> */}
-            <main className="flex flex-col relative z-[1] sm:px-6 pt-5 lg:pt-12 pb-8 min-h-screen items-center">
+            <main className="flex flex-col relative z-[1] sm:px-6 pb-8 min-h-screen items-center">
                 <Header />
                 {/* <section className="mt-8 lg:mt-20 w-full">{children}</section> */}
-                <section className="mt-4 lg:mt-10 w-9/12">{children}</section>
+                <section className="mt-4 lg:mt-10 w-full">{children}</section>
                 <div className="flex-grow" />
                 <footer className="mt-16 text-xl w-full flex flex-col items-center">
                     <div className="grid grid-cols-1 gap-8 lg:gap-12 md:grid-cols-2 lg:grid-cols-4 lg:max-w-5xl w-full p-4 items-center justify-items-center">
@@ -26,22 +26,12 @@ function Layout({ children }: PropsWithChildren) {
                             {
                                 href: "https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app",
                                 title: "Docs",
-                                desc: "Find in-depth information about Next.js features and API."
+                                desc: "Find in-depth information about the GrapeVine API."
                             },
                             {
                                 href: "https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app",
                                 title: "Learn",
-                                desc: "Learn about Next.js in an interactive course with quizzes!"
-                            },
-                            {
-                                href: "https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app",
-                                title: "Templates",
-                                desc: "Discover and deploy boilerplate example Next.js projects."
-                            },
-                            {
-                                href: "https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app",
-                                title: "Deploy",
-                                desc: "Instantly deploy your Next.js site to a shareable URL with Vercel."
+                                desc: "Learn fun tips, tricks and commands for GrapeVine."
                             }
                         ].map(link => (
                             <a
