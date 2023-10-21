@@ -1,7 +1,7 @@
-import { TransactionType } from "@/pages";
 import { beautifyAddress, isJson } from "@/utils/helpers";
 import { IFeeds, chat } from "@pushprotocol/restapi";
 import { useMemo } from "react";
+import { TransactionType } from ".";
 
 export const ChatItem = (
     { chat, selectedChat, setSelectedChat, setCurrentChat }
@@ -15,6 +15,7 @@ export const ChatItem = (
     let isRequest = false
     let isPayment = false
     
+    console.log('ChatItem: chat.msg:', chat.msg)
     if (isJson(chat.msg.messageContent)) {
         const message = JSON.parse(chat.msg.messageContent)
         isRequest = message?.type === TransactionType.REQUEST
@@ -44,7 +45,7 @@ export const ChatItem = (
             <div className="w-full">
                 <div className="text-lg font-semibold">{chatName}</div>
                 <span className={`text-gray-500 ${chat?.did?.substring(7) === selectedChat ? 'text-white' : ''}`}>
-                    {isRequest ? '💰 Requested' : isPayment ? '💰 Payment received' : chat.msg.messageContent}
+                    {isRequest ? '💰 Requested' : isPayment ? '💰 Payment' : chat.msg.messageContent}
                 </span>
             </div>
         </div>

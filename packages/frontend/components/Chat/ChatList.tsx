@@ -31,6 +31,7 @@ export const ChatList: FC<ChatListProps> = ({
     setCurrentChat
 }) => {
     const handleToggle = (tab: string) => {
+        console.log('handleToggle:', tab);
         setSelectedChat('')
         setActiveTab(tab);
     }

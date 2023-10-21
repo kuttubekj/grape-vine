@@ -13,7 +13,7 @@ type RequestItemProps = {
 export const RequestItem: FC<RequestItemProps> = (
     { request, selectedChat, setSelectedChat, acceptRequest, rejectRequest }) => (
     <div
-        onClick={() => setSelectedChat(request?.did?.substring(7) || '')}
+        onClick={() => setSelectedChat(request?.did?.substring(7) || '')} // OK
         className={`flex flex-row py-4 px-2 justify-center items-center border-b-2 hover:bg-primary transition duration-200 cursor-pointer ${request?.did?.substring(7) === selectedChat ? 'bg-primary text-white' : ''}`}
     >
         <div className="w-1/4">

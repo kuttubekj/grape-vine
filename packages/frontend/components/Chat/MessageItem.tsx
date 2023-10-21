@@ -1,11 +1,12 @@
 import { useInvoice } from "@/hooks/usePayment";
-import { Message, TransactionType } from "@/pages";
 import { defaultAbiCoder, keccak256, solidityKeccak256 } from "ethers/lib/utils";
 import moment from "moment";
 import { useEffect } from "react";
 import { FiCheck, FiDollarSign, FiPlay } from "react-icons/fi";
+import { Message, TransactionType } from ".";
 
 const generateInvoiceId = (chatId: string, cid: string, sender?: string): string => {
+    if(!chatId || !cid || !sender) return ''
     const combinedData = defaultAbiCoder.encode(
         ['string', 'string', 'address'],
         [chatId, cid, sender]

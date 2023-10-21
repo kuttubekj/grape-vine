@@ -5,7 +5,6 @@ import { isJson, beautifyAddress } from "@/utils/helpers";
 import { IFeeds } from "@pushprotocol/restapi";
 import { MessageType } from "@pushprotocol/restapi/src/lib/constants";
 import moment from "moment";
-import { Message } from "postcss";
 import { useState, useRef, useEffect } from "react";
 import { FiCodesandbox, FiSend } from "react-icons/fi";
 import { parseUnits } from "viem";
@@ -15,16 +14,37 @@ import { TokenModal } from "../Modals/TokenModal";
 import { TransactionModal } from "../Modals/TransactionModal";
 import { ChatList } from "./ChatList";
 import { MessageItem } from "./MessageItem";
-import { TransactionType } from "@/pages";
 import Blockies from 'react-blockies';
+import { ProposedEventNames, STREAM } from "@pushprotocol/restapi/src/lib/pushstream/pushStreamTypes";
 
+export enum TransactionType {
+    SEND = 'SEND',
+    REQUEST = 'REQUEST',
+    DIRECT_SEND = 'DIRECT_SEND',
+}
+  
+export type Message = {
+    cid: string;
+    from: string;
+    to: string;
+    content: string;
+    timestamp: number;
+    type: MessageType;
+    transaction?: {
+      type: TransactionType;
+      token: string;
+      amount: string;
+    }
+  }
+  
+  
 export default function Chat() {
 
   const [chats, setChats] = useState<IFeeds[]>([]);
   const [requests, setRequests] = useState<IFeeds[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
-  const [selectedChat, setSelectedChat] = useState('');
+  const [selectedChat, setSelectedChat] = useState('0x');
   const [activeTab, setActiveTab] = useState('chats'); // 'chats' or 'requests'
   const [isTokenModalOpen, setTokenModalOpen] = useState(false);
   const [isModalVisible, setModalVisible] = useState(false);
@@ -36,6 +56,8 @@ export default function Chat() {
   const [currentChat, setCurrentChat] = useState<IFeeds>();
   const [invoiceId, setInvoiceID] = useState<string>();
   const [amount, setAmount] = useState<string>();
+  const messagesRef = useRef(messages);
+  const chatsRef = useRef(chats);
 
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
   const { address } = useAccount();
@@ -64,9 +86,9 @@ export default function Chat() {
   }
 
   useEffect(() => {
-    console.log('user:', user)
     fetchChats()
     fetchRequests()
+    listenChat()
   }, [user])
 
   const openTokenModal = () => {
@@ -111,6 +133,30 @@ export default function Chat() {
 
     return newMessage;
   };
+
+    const listenChat = async () => { 
+        if(user) {
+            user.stream.on(STREAM.CHAT, (data: any) => {
+                console.log('STREAM:', data)
+                if (data.event === ProposedEventNames.Message) {
+                    const newMessage = eventToMessage(data)
+                    if (
+                        address !== newMessage.from &&
+                        (newMessage.from.toLocaleLowerCase() === messagesRef.current[0].from.toLocaleLowerCase() ||
+                            newMessage.from.toLocaleLowerCase() === messagesRef.current[0].to.toLocaleLowerCase())
+                    ) {
+                        setMessages(prev => [...prev, newMessage])
+                    }
+                    const chatIndex = chatsRef.current.findIndex(chat => chat.did?.substring(7) === newMessage.from || chat.did?.substring(7) === newMessage.to)
+                    if(chatIndex >= 0) {
+                        chatsRef.current[chatIndex].msg.messageContent = newMessage.content
+                        setChats(chatsRef.current)
+                    }
+
+                }
+            })
+        }
+    }
 
   const handleSend = async (event: any) => {
     event.preventDefault();
@@ -166,6 +212,7 @@ export default function Chat() {
     }
     setIsSending(false);
     setTransactionLoading(false);
+    closeTokenModal();
   };
 
   const handlePayInvoice = async () => {
@@ -173,7 +220,16 @@ export default function Chat() {
     await payInvoice(
       { args: [invoiceId], value: BigInt(parseUnits(amount, 18) || 0) })
     setTransactionLoading(false)
+    closeTokenModal();
   }
+
+  useEffect(() => {
+    messagesRef.current = messages;
+  }, [messages]);
+
+  useEffect(() => {
+    chatsRef.current = chats;
+  }, [chats]);
 
   const fetchChatHistory = async (targetAddress: string) => {
     setMessagesLoading(true)
@@ -447,3 +503,38 @@ export default function Chat() {
     </div>
   );
 }
+
+const eventToMessage = (event: any) => {
+    if (isJson(event?.message?.content)) {
+        const messageObj = JSON.parse(event?.message?.content)
+        if (
+            (messageObj.type == TransactionType.DIRECT_SEND ||
+                messageObj.type == TransactionType.REQUEST) &&
+            messageObj.token &&
+            messageObj.amount
+        ) {
+            return {
+                cid: event.reference,
+                from: event.from.substring(7),
+                to: event.to?.[0].substring(7),
+                content: event?.message?.content,
+                timestamp: event.timestamp / 1000,
+                type: event.message.type,
+                transaction: {
+                    type: messageObj.type,
+                    token: messageObj.token,
+                    amount: messageObj.amount,
+                }
+            }
+        }
+    }
+
+    return {
+        cid: event.reference,
+        from: event.from.substring(7),
+        to: event.to?.[0]?.substring(7),
+        content: event.message.content,
+        timestamp: event.timestamp / 1000,
+        type: event.message.type,
+    }
+} 

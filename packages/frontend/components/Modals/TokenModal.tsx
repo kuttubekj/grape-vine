@@ -1,5 +1,5 @@
-import { TransactionType } from "@/pages";
 import { useState } from "react";
+import { TransactionType } from "../Chat";
 
 export function TokenModal(
     { isOpen, onClose, onConfirmSent, loading }:
