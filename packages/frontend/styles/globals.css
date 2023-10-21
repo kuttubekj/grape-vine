@@ -16,6 +16,39 @@
   }
 }
 
+div {
+  border-color: #EAE0FF;
+}
+
+.border-r-2 {
+  border-color: #40375C;
+}
+.border-b-2 {
+  border-color: #40375C;
+}
+.border-t {
+  border-color: #40375C;
+}
+.chat-bubble {
+  background: #270C60;
+  color: #EAE0FF;
+}
+
+.chat-bubble.bg-base-200 {
+  background: #c7fce2;
+  color: #270C60;
+}
+
+input .input {
+  background: #EAE0FF;
+  color: #270C60;
+}
+
+.tabs.tabs-boxed {
+  background: #100820;
+
+}
+
 body {
   color: rgb(var(--foreground-rgb));
   background: linear-gradient(

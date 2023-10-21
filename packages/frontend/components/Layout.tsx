@@ -18,7 +18,7 @@ function Layout({ children }: PropsWithChildren) {
             <main className="flex flex-col relative z-[1] sm:px-6 pt-5 lg:pt-12 pb-8 min-h-screen items-center">
                 <Header />
                 {/* <section className="mt-8 lg:mt-20 w-full">{children}</section> */}
-                <section className="mt-8 lg:mt-20 w-9/12">{children}</section>
+                <section className="mt-4 lg:mt-10 w-9/12">{children}</section>
                 <div className="flex-grow" />
                 <footer className="mt-16 text-xl w-full flex flex-col items-center">
                     <div className="grid grid-cols-1 gap-8 lg:gap-12 md:grid-cols-2 lg:grid-cols-4 lg:max-w-5xl w-full p-4 items-center justify-items-center">

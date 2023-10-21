@@ -299,7 +299,7 @@ export default function Chat() {
           />
         </div>
       </div>
-      <div className="flex flex-col md:flex-row justify-between bg-gray-900 max-h-screen" style={{
+      <div className="flex flex-col md:flex-row justify-between bg-base-300 max-h-screen" style={{
         height: '70vh'
       }}>
         {/* <!-- chat list --> */}
@@ -363,13 +363,13 @@ export default function Chat() {
                           disabled={isSending || !selectedChat}
                           type="text"
                           placeholder={isSending ? 'Message is sending...' : 'Type a message...'}
-                          className="flex-grow p-2 input w-full"
+                          className="flex-grow p-2 input w-full bg-base-200"
                         />
                         <button
                           disabled={isSending || !selectedChat}
                           onClick={openTokenModal}
                         >
-                          <FiCodesandbox className="text-primary h-6 w-6" />
+                          <FiCodesandbox className="text-secondary h-6 w-6" />
                         </button>
 
                         <TokenModal
@@ -383,7 +383,7 @@ export default function Chat() {
                           type="submit"
                           disabled={isSending || !selectedChat}
                         >
-                          <FiSend className="text-primary h-6 w-6" />
+                          <FiSend className="text-secondary h-6 w-6" />
                         </button>
                       </div>
                     </form>

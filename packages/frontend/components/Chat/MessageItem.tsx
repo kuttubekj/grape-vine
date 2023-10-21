@@ -37,7 +37,7 @@ export const MessageItem = (
                         <>
                             {isPaid ? (
                                 <button
-                                    className="ml-2 bg-base-500 text-white px-2 py-1 rounded shadow hover:bg-green-600 transition-all">
+                                    className="ml-2 bg-base-500 text-white px-2 py-1 rounded shadow hover:bg-accent transition-all">
                                     <FiCheck className="text-primary h-6 w-6" />
                                 </button>
 
@@ -45,7 +45,7 @@ export const MessageItem = (
                                 <button onClick={() => {
                                     openTransactionModal(message, invoiceId, message?.transaction?.amount)
                                 }}
-                                    className="ml-2 bg-base-500 text-white px-2 py-1 rounded shadow hover:bg-green-600 transition-all">
+                                    className="ml-2 bg-base-500 text-white px-2 py-1 rounded shadow hover:bg-accent transition-all">
                                     <FiPlay className="text-primary h-6 w-6" />
                                 </button>
                             )}
@@ -60,7 +60,7 @@ export const MessageItem = (
                                 <>
                                     💰 {message.from !== address ? 'Received' : 'Sent'} <span className="font-bold">{message?.transaction?.amount} {message?.transaction?.token}</span>
                                     <button
-                                        className="ml-2 bg-base-500 text-white px-2 py-1 rounded shadow hover:bg-green-600 transition-all">
+                                        className="ml-2 bg-base-500 text-white px-2 py-1 rounded shadow hover:bg-accent transition-all">
                                         <FiCheck className="text-primary h-6 w-6" />
                                     </button>
                                 </>
