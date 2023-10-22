@@ -27,6 +27,7 @@ export const MessageItem = (
     const isDirectSend = message.transaction?.type === TransactionType.DIRECT_SEND
     // keccak256([chatId, message.cid, address])
     const invoiceId = generateInvoiceId(chatId, message.cid, message.from)
+    const shouldPay = message.from !== address
     const { isLoading, isPaid } = useInvoice(invoiceId)
 
     return (
@@ -34,24 +35,27 @@ export const MessageItem = (
             {isRequest ? (
                 <div className="chat-bubble bg-base-200 text-white p-3 rounded-lg shadow-md">
                     💰 Requested <span className="font-bold">{message?.transaction?.amount} {message?.transaction?.token}</span>
-                    {message.from !== address &&
+                    {/* {message.from !== address && */}
                         <>
                             {isPaid ? (
                                 <button
                                     className="ml-2 bg-base-500 text-white px-2 py-1 rounded shadow hover:bg-accent transition-all">
                                     <FiCheck className="text-primary h-6 w-6" />
                                 </button>
-
                             ) : (
-                                <button onClick={() => {
-                                    openTransactionModal(message, invoiceId, message?.transaction?.amount)
-                                }}
-                                    className="ml-2 bg-base-500 text-white px-2 py-1 rounded shadow hover:bg-accent transition-all">
-                                    <FiPlay className="text-primary h-6 w-6" />
-                                </button>
+                                <>
+                                    {shouldPay &&
+                                        <button onClick={() => {
+                                            openTransactionModal(message, invoiceId, message?.transaction?.amount)
+                                        }}
+                                            className="ml-2 bg-base-500 text-white px-2 py-1 rounded shadow hover:bg-accent transition-all">
+                                            <FiPlay className="text-primary h-6 w-6" />
+                                        </button>
+                                    }
+                                </>
                             )}
                         </>
-                    }
+                    {/* } */}
                 </div>
             ) : (
                 <>
@@ -59,7 +63,7 @@ export const MessageItem = (
                         <div className="chat-bubble bg-base-200 text-white p-3 rounded-lg shadow-md">
                             {isPaid ? (
                                 <>
-                                    💰 {message.from !== address ? 'Received' : 'Sent'} <span className="font-bold">{message?.transaction?.amount} {message?.transaction?.token}</span>
+                                    💰 {shouldPay ? 'Received' : 'Sent'} <span className="font-bold">{message?.transaction?.amount} {message?.transaction?.token}</span>
                                     <button
                                         className="ml-2 bg-base-500 text-white px-2 py-1 rounded shadow hover:bg-accent transition-all">
                                         <FiCheck className="text-primary h-6 w-6" />

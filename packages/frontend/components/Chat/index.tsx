@@ -221,7 +221,7 @@ export default function Chat() {
     await payInvoice(
       { args: [invoiceId], value: BigInt(parseUnits(amount, 18) || 0) })
     setTransactionLoading(false)
-    closeTokenModal();
+    closeTransactionModal();
   }
 
   useEffect(() => {

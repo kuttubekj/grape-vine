@@ -11,3 +11,7 @@ export const isJson = (item: string): boolean => {
 
     return typeof value === "object" && value !== null;
 }
+
+export const uid = function(){
+    return Date.now().toString(36) + Math.random().toString(36).substr(2);
+}
