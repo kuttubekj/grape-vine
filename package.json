@@ -1,5 +1,5 @@
 {
-  "name": "vouch-tech",
+  "name": "grape-vine",
   "version": "1.0.0",
   "private": true,
   "workspaces": {
@@ -10,8 +10,8 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "yarn workspace @vouch-tech/frontend dev",
-    "deploy": "yarn workspace @vouch-tech/contracts deploy"
+    "start": "yarn workspace @grape-vine/frontend dev",
+    "deploy": "yarn workspace @grape-vine/contracts deploy"
   },
   "packageManager": "yarn@3.2.3",
   "license": "ISC",
