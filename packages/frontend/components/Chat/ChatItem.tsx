@@ -23,7 +23,7 @@ export const ChatItem = (
     }
     
 
-    const groupInfo = useMemo(() => chat?.groupInformation, [chat])
+    const groupInfo = useMemo(() => chat?.groupInformation || null, [chat])
     const chatName = useMemo(() => groupInfo?.groupName || beautifyAddress(chat?.did?.substring(7)), [chat])
     const profileImage = useMemo(() => groupInfo?.groupImage || chat?.profilePicture, [chat])
     const handleSelect = () => {

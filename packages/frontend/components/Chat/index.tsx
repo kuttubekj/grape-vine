@@ -218,10 +218,12 @@ export default function Chat() {
 
   const handlePayInvoice = async () => {
     setTransactionLoading(true)
-    await payInvoice(
-      { args: [invoiceId], value: BigInt(parseUnits(amount, 18) || 0) })
+    if (amount) {
+      await payInvoice(
+        { args: [invoiceId], value: BigInt(parseUnits(amount, 18) || 0) })
+      closeTransactionModal();
+    }
     setTransactionLoading(false)
-    closeTransactionModal();
   }
 
   useEffect(() => {
@@ -394,7 +396,7 @@ export default function Chat() {
                 <div className="flex flex-col h-full overflow-hidden">                  
                     { selectedChat && currentChat &&
                         <ChatHeader 
-                            avatarUrl={currentChat?.profilePicture}
+                            avatarUrl={currentChat?.profilePicture || ''}
                             address={selectedChat}
                         />
                     }
@@ -412,7 +414,7 @@ export default function Chat() {
                       messages.map((message, idx) => (
                         <MessageItem
                           key={idx}
-                          chatId={currentChat?.chatId}
+                          chatId={currentChat?.chatId || ''}
                           message={message}
                           address={address}
                           openTransactionModal={openTransactionModal}
@@ -471,7 +473,7 @@ export default function Chat() {
                 <div className="flex flex-col h-full overflow-hidden">
                     { selectedChat && currentChat &&
                         <ChatHeader 
-                            avatarUrl={currentChat?.profilePicture}
+                            avatarUrl={currentChat?.profilePicture || ''}
                             address={selectedChat}
                         />
                     }

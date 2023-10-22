@@ -1,9 +1,9 @@
-import { Message } from "@/pages";
 import { beautifyAddress } from "@/utils/helpers";
+import { Message } from "postcss";
 
 export function TransactionModal(
     { message, isOpen, onClose, onConfirm, loading }:
-        { message: Message, isOpen: boolean, loading: boolean, onClose: () => void, onConfirm: () => void }
+        { message: Message | undefined, isOpen: boolean, loading: boolean, onClose: () => void, onConfirm: () => void }
 ) {
 
     return (
