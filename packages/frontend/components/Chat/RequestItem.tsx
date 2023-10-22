@@ -27,7 +27,7 @@ export const RequestItem: FC<RequestItemProps> = (
             <div className="text-lg font-semibold">{beautifyAddress(request?.did?.substring(7))}</div>
             <span className={`text-gray-500 ${request?.did?.substring(7) === selectedChat ? 'text-white' : ''}`}>Wants to chat with you</span>
         </div>
-        <div className="w-2/5 flex space-x-2">
+        {/* <div className="w-2/5 flex space-x-2">
             <button
                 className="text-green-500 border border-green-500 py-1 px-2 rounded"
                 onClick={() => acceptRequest(request?.did?.substring(7))}
@@ -39,6 +39,6 @@ export const RequestItem: FC<RequestItemProps> = (
                 className="text-red-500 border border-red-500 py-1 px-2 rounded">
                 Reject
             </button>
-        </div>
+        </div> */}
     </div>
 );

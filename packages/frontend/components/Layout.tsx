@@ -24,12 +24,12 @@ function Layout({ children }: PropsWithChildren) {
                     <div className="grid grid-cols-1 gap-8 lg:gap-12 md:grid-cols-2 lg:grid-cols-4 lg:max-w-5xl w-full p-4 items-center justify-items-center">
                         {[
                             {
-                                href: "https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app",
+                                href: "",
                                 title: "Docs",
                                 desc: "Find in-depth information about the GrapeVine API."
                             },
                             {
-                                href: "https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app",
+                                href: "",
                                 title: "Learn",
                                 desc: "Learn fun tips, tricks and commands for GrapeVine."
                             }

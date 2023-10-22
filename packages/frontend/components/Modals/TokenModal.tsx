@@ -21,8 +21,6 @@ export function TokenModal(
                     className="input w-full mb-4"
                 >
                     <option value="ETH">ETH</option>
-                    <option value="DAI">DAI</option>
-                    <option value="USDT">USDT</option>
                 </select>
 
                 <input

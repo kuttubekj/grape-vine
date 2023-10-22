@@ -16,6 +16,7 @@ import { ChatList } from "./ChatList";
 import { MessageItem } from "./MessageItem";
 import Blockies from 'react-blockies';
 import { ProposedEventNames, STREAM } from "@pushprotocol/restapi/src/lib/pushstream/pushStreamTypes";
+import ChatHeader from "./MessageHeader";
 
 export enum TransactionType {
     SEND = 'SEND',
@@ -44,7 +45,7 @@ export default function Chat() {
   const [requests, setRequests] = useState<IFeeds[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
-  const [selectedChat, setSelectedChat] = useState('0x');
+  const [selectedChat, setSelectedChat] = useState('');
   const [activeTab, setActiveTab] = useState('chats'); // 'chats' or 'requests'
   const [isTokenModalOpen, setTokenModalOpen] = useState(false);
   const [isModalVisible, setModalVisible] = useState(false);
@@ -160,6 +161,7 @@ export default function Chat() {
 
   const handleSend = async (event: any) => {
     event.preventDefault();
+    setInput('');
 
     const trimmedInput = input.trim();
     if (!trimmedInput || isSending) return;
@@ -173,7 +175,6 @@ export default function Chat() {
 
     await sendMessage(selectedChat, message);
 
-    setInput('');
     setIsSending(false);
   };
 
@@ -278,14 +279,16 @@ export default function Chat() {
 
   const acceptRequest = async (address: string) => {
     const acceptedRequest = await user?.chat.accept(address);
-    console.log('acceptedRequest:', acceptedRequest)
+    setSelectedChat('')
+    setCurrentChat(undefined)
     fetchChats()
     fetchRequests()
   }
 
   const rejectRequest = async (address: string) => {
     const rejectedRequest = await user?.chat.reject(address);
-    console.log('rejectedRequest:', rejectedRequest)
+    setSelectedChat('')
+    setCurrentChat(undefined)
     fetchChats()
     fetchRequests()
   }
@@ -388,7 +391,15 @@ export default function Chat() {
           ) : (
             <>
               {activeTab === 'chats' ? (
-                <div className="flex flex-col h-full overflow-hidden">
+                <div className="flex flex-col h-full overflow-hidden">                  
+                    { selectedChat && currentChat &&
+                        <ChatHeader 
+                            avatarUrl={currentChat?.profilePicture}
+                            address={selectedChat}
+                        />
+                    }
+
+
                   <TransactionModal
                     isOpen={isModalVisible}
                     onClose={closeTransactionModal}
@@ -410,43 +421,60 @@ export default function Chat() {
                     }
                     < div ref={endOfMessagesRef} />
                   </div>
-                  <div className="border-t pt-2 p-5">
+                  <div className="pt-2 p-5">
                     <form onSubmit={handleSend}>
-                      <div className="flex items-center space-x-2">
-                        <input
-                          value={input}
-                          onChange={(e) => setInput(e.target.value)}
-                          disabled={isSending || !selectedChat}
-                          type="text"
-                          placeholder={isSending ? 'Message is sending...' : 'Type a message...'}
-                          className="flex-grow p-2 input w-full bg-base-200"
-                        />
-                        <button
-                          disabled={isSending || !selectedChat}
-                          onClick={openTokenModal}
-                        >
-                          <FiCodesandbox className="text-secondary h-6 w-6" />
-                        </button>
-
-                        <TokenModal
-                          isOpen={isTokenModalOpen}
-                          onClose={closeTokenModal}
-                          onConfirmSent={handleTransaction}
-                          loading={transactionLoading}
-                        />
-                        <button
-                          className="ml-2"
-                          type="submit"
-                          disabled={isSending || !selectedChat}
-                        >
-                          <FiSend className="text-secondary h-6 w-6" />
-                        </button>
-                      </div>
+                        {selectedChat !== '' ? (
+                            <div className="flex items-center space-x-2">
+                                <input
+                                    value={input}
+                                    onChange={(e) => setInput(e.target.value)}
+                                    disabled={isSending || !selectedChat}
+                                    type="text"
+                                    placeholder={isSending ? 'Message is sending...' : 'Type a message...'}
+                                    className="flex-grow p-2 input w-full bg-base-200"
+                                />
+                                <label
+                                    className="cursor-pointer"
+                                    onClick={openTokenModal}
+                                >
+                                    <FiCodesandbox disabled={isSending || !selectedChat} className="text-secondary h-6 w-6" />
+                                </label>
+                          
+                                <TokenModal
+                                    isOpen={isTokenModalOpen}
+                                    onClose={closeTokenModal}
+                                    onConfirmSent={handleTransaction}
+                                    loading={transactionLoading}
+                                />
+                                <button
+                                    className="ml-2"
+                                    type="submit"
+                                    disabled={isSending || !selectedChat}
+                                >
+                                    <FiSend className="text-secondary h-6 w-6" />
+                                </button>
+                            </div>
+                        ): (
+                            <div style={{
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                height: '50vh'
+                              }}>
+                                Select a chat to start messaging
+                            </div>                  
+                        )}
                     </form>
                   </div>
                 </div>
               ) : (
                 <div className="flex flex-col h-full overflow-hidden">
+                    { selectedChat && currentChat &&
+                        <ChatHeader 
+                            avatarUrl={currentChat?.profilePicture}
+                            address={selectedChat}
+                        />
+                    }
                   <div className="overflow-y-auto p-5 flex-grow">
                     {messages.map((message, idx) => (
                       <div key={idx} className={`chat ${message.from === address ? 'chat-end' : 'chat-start'}`}>
@@ -458,11 +486,6 @@ export default function Chat() {
                             />
                           </div>
                         </div>
-                        {message.from !== address && (
-                          <div className="chat-header text-white">
-                            {beautifyAddress(message.from)}
-                          </div>
-                        )}
                         <div className="chat-bubble">{message.content}</div>
                         <div className="chat-footer opacity-50 text-white">
                           <time className="text-xs opacity-50">{moment.unix(message.timestamp).fromNow()}</time>
@@ -474,24 +497,35 @@ export default function Chat() {
                   </div>
                   {messages.length > 0 && (
                     <div className="border-t pt-2 p-5">
-                      <form onSubmit={handleSend}>
-                        <div className="w-full flex justify-end space-x-4">
-                          <button
-                            onClick={() => acceptRequest(selectedChat)}
-                            className="py-2 px-5 text-white bg-gradient-to-r from-green-400 to-green-600 rounded-lg shadow-md hover:from-green-500 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition-all"
-                            type="submit"
-                          >
-                            Accept
-                          </button>
-                          <button
-                            onClick={() => rejectRequest(selectedChat)}
-                            className="py-2 px-5 text-white bg-gradient-to-r from-red-400 to-red-600 rounded-lg shadow-md hover:from-red-500 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 transition-all"
-                            type="submit"
-                          >
-                            Reject
-                          </button>
-                        </div>
-                      </form>
+                      { chatFetching ? (
+                          <div style={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            height: '50vh'
+                          }}>
+                            <LoadingComponent />
+                          </div>
+                        ): (
+                          <form onSubmit={handleSend}>
+                            <div className="w-full flex justify-end space-x-4">
+                              <button
+                                onClick={() => acceptRequest(selectedChat)}
+                                className="py-2 px-5 text-white bg-gradient-to-r from-green-400 to-green-600 rounded-lg shadow-md hover:from-green-500 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition-all"
+                                type="submit"
+                              >
+                                Accept
+                              </button>
+                              <button
+                                onClick={() => rejectRequest(selectedChat)}
+                                className="py-2 px-5 text-white bg-gradient-to-r from-red-400 to-red-600 rounded-lg shadow-md hover:from-red-500 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 transition-all"
+                                type="submit"
+                              >
+                                Reject
+                              </button>
+                            </div>
+                          </form>
+                        ) }
                     </div>
                   )}
                 </div>
