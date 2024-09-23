@@ -30,14 +30,14 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 export const Header = () => {
   return (
     // <div className="sticky lg:static top-0 navbar bg-base-100 min-h-0 flex-shrink-0 justify-between z-20 shadow-md shadow-secondary px-0 sm:px-2 border-b font-header">
-      <div className="z-10 max-w-5xl font-mono text-sm grid grid-cols-2 gap-4 ">
-       <div className="col-span-1">
-       
-        <div className="flex items-center pt-2"> 
-        <Image className="w-6 h-6 mr-4 " src="/grape.svg" width="40" height="40" alt="GrapeVine Logo" />
-        GrapeVine
+    <div className="z-10 max-w-5xl font-mono text-sm grid grid-cols-2 gap-4 items-center">
+      <div className="col-span-1">
+
+        <div className="flex items-center pt-2">
+          <Image className="w-6 h-6 mr-4 " src="/grape.svg" width="40" height="40" alt="GrapeVine Logo" />
+          GrapeVine
         </div>
-      
+
       </div>
       <div className="col-span-1 from-white via-white dark:from-black dark:via-black  ">
           <ConnectButton
